@@ -3,21 +3,21 @@ const { sql } = require("../dbConnection");
 const createReview = async (req, res) => {
   const { tourId, rating, comment } = req.body;
   const userId = req.user.id;
-  if (!tourId || !rating) {
+  if (!tourId || !rating || !comment) {
     return res
       .status(400)
-      .json({ message: "Please provide tourId and rating" });
+      .json({ message: "Please provide tourId and rating and comment" });
   }
   if (rating < 1 || rating > 5) {
     return res.status(400).json({ message: "Rating must be between 1 and 5" });
   }
   try {
-    const [tour] = await sql`SELECT id FROM tours WHERE id = ${tourId}`;
+    const [tour] = await sql`SELECT id FROM "Tours" WHERE id = ${tourId}`;
     if (!tour) {
       return res.status(404).json({ message: "Tour not found" });
     }
     const result = await sql`
-            INSERT INTO reviews (user_id, tour_id, rating, comment)
+            INSERT INTO "Reviews" (user_id, tour_id, rating, comment)
             VALUES (${userId}, ${tourId}, ${rating}, ${comment})
             RETURNING id, user_id, tour_id, rating, comment, registered_at
         `;

@@ -1,0 +1,92 @@
+const { body, param, validationResult } = require("express-validator");
+
+// Shared validation middleware
+const validate = (validations) => [
+  ...validations,
+  (req, res, next) => {
+    const errs = validationResult(req);
+    if (!errs.isEmpty()) return res.status(400).json({ errors: errs.array() });
+    next();
+  },
+];
+
+module.exports = {
+  // POST /registrations
+  validateCreateRegistration: validate([
+    body("tourDateId")
+      .exists()
+      .withMessage("tourDateId is required")
+      .bail()
+      .isInt({ gt: 0 })
+      .withMessage("tourDateId must be a positive integer")
+      .toInt(),
+  ]),
+
+  // PATCH /registrations/:registrationId/status
+  validateUpdateStatus: validate([
+    param("registrationId")
+      .exists()
+      .withMessage("registrationId is required")
+      .bail()
+      .isInt({ gt: 0 })
+      .withMessage("registrationId must be a positive integer")
+      .toInt(),
+    body("status")
+      .exists()
+      .withMessage("status is required")
+      .bail()
+      .isIn(["pending", "approved"])
+      .withMessage("status must be 'pending' or 'approved'"),
+  ]),
+
+  // PATCH /registrations/:registrationId/date
+  validateUpdateDate: validate([
+    param("registrationId")
+      .exists()
+      .withMessage("registrationId is required")
+      .bail()
+      .isInt({ gt: 0 })
+      .withMessage("registrationId must be a positive integer")
+      .toInt(),
+    body("tourDateId")
+      .exists()
+      .withMessage("tourDateId is required")
+      .bail()
+      .isInt({ gt: 0 })
+      .withMessage("tourDateId must be a positive integer")
+      .toInt(),
+  ]),
+
+  // DELETE /registrations/:registrationId
+  validateCancel: validate([
+    param("registrationId")
+      .exists()
+      .withMessage("registrationId is required")
+      .bail()
+      .isInt({ gt: 0 })
+      .withMessage("registrationId must be a positive integer")
+      .toInt(),
+  ]),
+
+  // GET /registrations/tour/:tourId
+  validateGetByTourId: validate([
+    param("tourId")
+      .exists()
+      .withMessage("tourId is required")
+      .bail()
+      .isInt({ gt: 0 })
+      .withMessage("tourId must be a positive integer")
+      .toInt(),
+  ]),
+
+  // GET /registrations/user/:userId
+  validateGetByUserId: validate([
+    param("userId")
+      .exists()
+      .withMessage("userId is required")
+      .bail()
+      .isInt({ gt: 0 })
+      .withMessage("userId must be a positive integer")
+      .toInt(),
+  ]),
+};
