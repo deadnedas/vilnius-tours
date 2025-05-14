@@ -24,7 +24,6 @@ const {
 router.post("/", auth(), validateCreateRegistration, createRegistration);
 router.get("/", auth("admin"), getAllRegistrations);
 
-// Route to retrieve registrations for a specific tour
 router.get(
   "/tour/:tourId",
   auth("admin"),
@@ -32,7 +31,6 @@ router.get(
   getRegistrationsByTourId
 );
 
-// Route to retrieve registrations for a specific user
 router.get(
   "/user/:userId",
   auth(),
@@ -40,7 +38,6 @@ router.get(
   getRegistrationsByUserId
 );
 
-// Route to update the status of a registration (e.g., from 'pending' to 'approved')
 router.patch(
   "/status/:registrationId",
   auth("admin"),
@@ -56,7 +53,7 @@ router.patch(
   validateUpdateDate,
   updateRegistrationDate
 );
-// Route to cancel (delete) a registration
+
 router.delete("/:registrationId", auth(), validateCancel, cancelRegistration);
 
 module.exports = router;

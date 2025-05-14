@@ -1,35 +1,47 @@
-const { sql } = require("../dbConnection");
+const Review = require("../models/reviewModel");
 
 const createReview = async (req, res) => {
   const { tourId, rating, comment } = req.body;
-  const userId = req.user.id;
+  if (!req.user?.id)
+    return res.status(401).json({ message: "Unauthorized - Please log in" });
+
   if (!tourId || !rating || !comment) {
     return res
       .status(400)
-      .json({ message: "Please provide tourId and rating and comment" });
+      .json({ message: "Please provide tourId, rating, and comment" });
   }
+
   if (rating < 1 || rating > 5) {
     return res.status(400).json({ message: "Rating must be between 1 and 5" });
   }
+
   try {
-    const [tour] = await sql`SELECT id FROM "Tours" WHERE id = ${tourId}`;
-    if (!tour) {
-      return res.status(404).json({ message: "Tour not found" });
+    const alreadyReviewed = await Review.exists(req.user.id, tourId);
+    if (alreadyReviewed) {
+      return res
+        .status(400)
+        .json({ message: "You've already reviewed this tour" });
     }
-    const result = await sql`
-            INSERT INTO "Reviews" (user_id, tour_id, rating, comment)
-            VALUES (${userId}, ${tourId}, ${rating}, ${comment})
-            RETURNING id, user_id, tour_id, rating, comment, registered_at
-        `;
-    res.status(201).json(result[0]);
+
+    const review = await Review.create({
+      userId: req.user.id,
+      tourId,
+      rating,
+      comment,
+    });
+
+    res.status(201).json(review);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error creating review:", error);
+    res
+      .status(500)
+      .json({ message: "Error creating review", error: error.message });
   }
 };
 
 const getAllReviews = async (req, res) => {
   try {
-    const reviews = await sql`SELECT * FROM "Reviews"`;
+    const reviews = await Review.getAll();
     res.json(reviews);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -39,12 +51,15 @@ const getAllReviews = async (req, res) => {
 const getReviewsByTourId = async (req, res) => {
   const { tourId } = req.params;
   try {
-    const reviews =
-      await sql`SELECT * FROM "Reviews" WHERE tour_id = ${tourId}`;
+    const reviews = await Review.getByTourId(tourId);
     res.json(reviews);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-module.exports = { createReview, getAllReviews, getReviewsByTourId };
+module.exports = {
+  createReview,
+  getAllReviews,
+  getReviewsByTourId,
+};

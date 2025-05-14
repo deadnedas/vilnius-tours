@@ -6,6 +6,7 @@ const {
   getAllUsers,
   getUserById,
   logout,
+  getCurrentUser,
 } = require("../controllers/userController");
 const auth = require("../middleware/auth");
 

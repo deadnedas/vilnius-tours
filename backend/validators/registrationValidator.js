@@ -1,6 +1,5 @@
 const { body, param, validationResult } = require("express-validator");
 
-// Shared validation middleware
 const validate = (validations) => [
   ...validations,
   (req, res, next) => {
@@ -11,7 +10,6 @@ const validate = (validations) => [
 ];
 
 module.exports = {
-  // POST /registrations
   validateCreateRegistration: validate([
     body("tourDateId")
       .exists()
@@ -22,7 +20,6 @@ module.exports = {
       .toInt(),
   ]),
 
-  // PATCH /registrations/:registrationId/status
   validateUpdateStatus: validate([
     param("registrationId")
       .exists()
@@ -39,7 +36,6 @@ module.exports = {
       .withMessage("status must be 'pending' or 'approved'"),
   ]),
 
-  // PATCH /registrations/:registrationId/date
   validateUpdateDate: validate([
     param("registrationId")
       .exists()
@@ -57,7 +53,6 @@ module.exports = {
       .toInt(),
   ]),
 
-  // DELETE /registrations/:registrationId
   validateCancel: validate([
     param("registrationId")
       .exists()
@@ -68,7 +63,6 @@ module.exports = {
       .toInt(),
   ]),
 
-  // GET /registrations/tour/:tourId
   validateGetByTourId: validate([
     param("tourId")
       .exists()
@@ -79,7 +73,6 @@ module.exports = {
       .toInt(),
   ]),
 
-  // GET /registrations/user/:userId
   validateGetByUserId: validate([
     param("userId")
       .exists()

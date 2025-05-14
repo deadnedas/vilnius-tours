@@ -15,7 +15,7 @@ module.exports = (...allowedRoles) => {
     try {
       // 2. Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded; // must include { id, role, ... } in token payload
+      req.user = decoded;
 
       // 3. If roles provided, enforce RBAC
       if (allowedRoles.length > 0 && !allowedRoles.includes(decoded.role)) {

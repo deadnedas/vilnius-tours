@@ -7,8 +7,7 @@ const {
   getReviewsByTourId,
 } = require("../controllers/reviewController");
 
-router.post("/", auth("admin"), createReview);
-
+router.post("/", auth(), createReview);
 router.get("/", getAllReviews);
 router.get("/tour/:tourId", getReviewsByTourId);
 

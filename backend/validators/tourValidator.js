@@ -1,7 +1,5 @@
-// validators/tourValidator.js
 const { body, param, query, validationResult } = require("express-validator");
 
-// Shared error formatter
 const validate = (validations) => [
   ...validations,
   (req, res, next) => {
@@ -11,17 +9,14 @@ const validate = (validations) => [
   },
 ];
 
-// Ensure dates array: non-empty, unique, ISO, >= today
 const datesArray = body("dates")
   .optional({ nullable: true })
   .isArray({ min: 1 })
   .withMessage("must be a non-empty array")
   .bail()
   .custom((arr) => {
-    // Unique
     const set = new Set(arr);
     if (set.size !== arr.length) throw new Error("dates must be unique");
-    // Valid ISO and not in the past
     const today = new Date().toISOString().slice(0, 10);
     for (const d of arr) {
       if (isNaN(Date.parse(d))) throw new Error(`${d} is not valid ISO date`);
@@ -32,7 +27,6 @@ const datesArray = body("dates")
   .withMessage("each date must be a unique ISO date ≥ today");
 
 module.exports = {
-  // GET /:id
   validateIdParam: validate([
     param("id")
       .exists()
@@ -43,7 +37,6 @@ module.exports = {
       .toInt(),
   ]),
 
-  // POST /
   validateCreateTour: validate([
     body("title")
       .exists()
@@ -87,7 +80,6 @@ module.exports = {
     datesArray,
   ]),
 
-  // PATCH /:id
   validateUpdateTour: validate([
     param("id")
       .exists()
@@ -129,7 +121,6 @@ module.exports = {
     datesArray,
   ]),
 
-  // GET /?name=&date=
   validateSearch: validate([
     query("name")
       .optional()
